@@ -29,40 +29,41 @@ void atm_money();
 
 };
 void bank::atm_money() {
+    fstream file3;
     double v;
     cout << "Enter money add to ATM: " << endl;
     cin >> v;
 
     // Open the "bank.txt" file in input mode
-    fstream file;
-    file.open("bank.txt", ios::in);
-    if (!file) {
+
+    file3.open("bank2.txt", ios::in);
+    if (!file3) {
         cout << "Error opening file!" << endl;
         return;
     }
 
     // Read the available money from the file
     double available_money;
-    file >> available_money;
+    file3 >> available_money;
 
     // Close the file
-    file.close();
+    file3.close();
 
     // Add the specified amount to the available money
     available_money += v;
 
     // Open the "bank.txt" file in output mode
-    file.open("bank.txt", ios::out);
-    if (!file) {
+    file3.open("bank2.txt", ios::out);
+    if (!file3) {
         cout << "Error opening file!" << endl;
         return;
     }
 
     // Write the updated available money to the file
-    file << available_money;
+    file3 << available_money;
 
     // Close the file
-    file.close();
+    file3.close();
 
     cout << "Available money in ATM is: " << available_money << endl;
 }
@@ -230,7 +231,7 @@ void bank::atm_management()
         case 4:
             menu();
         default:
-            cout<<"wrong Entry"<<endl;
+            return;
 
     }
     getch();
@@ -645,80 +646,77 @@ void bank::user_balance()
     }
 }
 
-void bank::atm_withdraw() {
-    fstream file, file1;
-    string t_id, t_pin, t_pass;
-    double available_money, with;
-    char ch;
-    int found = 0;
 
-    system("cls");
-    cout << "Withdraw" << endl;
+void bank::atm_withdraw() {
+    fstream file, file1,file3,file4;
+    string t_id, t_pin, t_pass;
+    double v;
+    char ch;
+    float with;
+    int found = 0;
+    cout << "Withdraw Money" << endl;
     file.open("bank.txt", ios::in);
+    file3.open("bank2.txt", ios::in);
     if (!file) {
         cout << "\nFile Opening error!." << endl;
-        return;
+        return; // Return from the function to avoid further execution
     }
-
     cout << "User ID: ";
     cin >> t_id;
-    cout << "\n\n Pin Code:";
+    cout << "\nPin Code:";
     for (int i = 1; i <= 5; i++) {
         ch = getch();
         t_pin += ch;
         cout << "*";
     }
-    cout << "\n\n Password :";
+    cout << "\nPassword :";
     for (int i = 1; i <= 5; i++) {
         ch = getch();
         t_pass += ch;
         cout << "*";
     }
-
-    file1.open("bank.txt", ios::app | ios::out);
-    file >> available_money;
-    file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance;
+    file1.open("bank1.txt", ios::app | ios::out);
+    file4.open("bank3.txt", ios::app | ios::out);
+    file3 >> v; // Read the available money from the file
+    file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance; // Read the first user's information
     while (!file.eof()) {
         if (t_id == id && t_pin == pin && t_pass == pass) {
-            cout << endl;
-            cout << "Enter Amount For Withdraw:";
-            cin >> with;
-            if (with <= balance && with <= available_money) {
+            cout <<endl;
+
+                cout << "Enter Amount For Withdraw:";
+                cin >> with;
+                v -= with;
                 balance -= with;
-                available_money -= with;
-
-                file1 << " " << available_money << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << endl;
+                file1 << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << " " << phone << " " << endl;
+                 file4<<" "<<v << " " <<endl;
                 found++;
-                cout << "\nYour Amount BDT: " << with << "Withdrawed succesfully" << endl;
-                cout << "Available Money in the ATM Booth: " << available_money;
+                cout << "\nYour Amount BDT: " << with << " Withdrawed succesfully" << endl;
+                cout << "Available Money in the ATM Booth: " << v;
             } else {
-                cout << "You Don't have enough money to withdraw" << endl;
-                cout << "Your Amount BDT: " << balance << endl;
-                cout << "Available Money in the ATM Booth: " << available_money;
+                file1 << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << " " << endl;
+                file4<<" "<<v << " " <<endl;
             }
-            // Add a break statement here
-            break;
-        } else {
-            file1 << " " << available_money << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << endl;
+
+            file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance;
+            file3 >> v;
         }
-
-        file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance;
+        file.close();
+        file1.close();
+        file3.close();
+        file4.close();
+        remove("bank2.txt");
+        rename("bank3.txt", "bank2.txt");
+        remove("bank.txt");
+        rename("bank1.txt", "bank.txt");
+        if (found == 0){
+            cout << endl;
+        cout << "User ID can't be found";
+        }
     }
-    file.close();
-    file1.close();
-    remove("bank.txt");
-    rename("bank1.txt", "bank.txt");
-    if (found == 0) {
-        cout << endl;
-
-
-        cout << "User ID can't be found" << endl;
-    }
-}
 
 
 void bank::atm_deposit() {
-    fstream file, file1;
+    fstream file, file1,file3,file4;
     string t_id, t_pin, t_pass;
     double v;
     char ch;
@@ -726,6 +724,7 @@ void bank::atm_deposit() {
     int found = 0;
     cout << "Deposit Money" << endl;
     file.open("bank.txt", ios::in);
+    file3.open("bank2.txt", ios::in);
     if (!file) {
         cout << "\nFile Opening error!." << endl;
     } else {
@@ -743,8 +742,10 @@ void bank::atm_deposit() {
             t_pass += ch;
             cout << "*";
         }
-        file1.open("bank.txt", ios::app | ios::out);
-        file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance >> v;
+        file1.open("bank1.txt", ios::app | ios::out);
+        file4.open("bank3.txt", ios::app | ios::out);
+        file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance;
+        file3 >> v;
         while (!file.eof()) {
             if (t_id == id && t_pin == pin && t_pass == pass) {
                 cout << endl;
@@ -752,23 +753,29 @@ void bank::atm_deposit() {
                 cin >> dep;
                 v += dep;
                 balance += dep;
-                file1 << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << " " << phone << " " << v << " " << endl;
-                found++;
+                file1 << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << " "<< endl;
+                file4<<" "<<v << " " <<endl;
                 cout << "\nYour Amount BDT: " << dep << " deposited succesfully" << endl;
                 cout << "Available Money in the ATM Booth: " << v;
             } else {
-                file1 << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << " " << v << " " << endl;
+                file1 << " " << id << " " << name << " " << fname << " " << address << " " << pin << " " << phone << " " << balance << " "<< endl;
+                file4<<" "<<v << " " <<endl;
             }
 
-            file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance >> v;
+            file >> id >> name >> fname >> address >> pin >> pass >> phone >> balance;
+            file3 >> v;
+
         }
         file.close();
         file1.close();
         remove("bank.txt");
         rename("bank1.txt", "bank.txt");
-        if (found == 0)
+        remove("bank2.txt");
+        rename("bank3.txt", "bank2.txt");
+        if (found == 0){
             cout << endl;
         cout << "User ID can't be found";
+        }
     }
 }
 
